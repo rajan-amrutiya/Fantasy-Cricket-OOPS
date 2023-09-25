@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Team = void 0;
-const batsman_1 = require("./batsman");
-const bowler_1 = require("./bowler");
-const wicketKeeper_1 = require("./wicketKeeper");
 class Team {
     name;
     players;
@@ -52,14 +49,14 @@ class Team {
     removePlayer(id) {
         let playerIndex = this.players.findIndex(player => player.getId() == id);
         if (playerIndex == -1) {
-            throw new Error('(Batsman | Bowler| Wicketkeeper) is not in team');
+            throw new Error('Player is not in team');
         }
         this.players.splice(playerIndex, 1);
     }
     validatePlayerRole(players) {
-        let batsmanCount = players.filter(player => player instanceof batsman_1.Batsman).length;
-        let bowlerCount = players.filter(player => player instanceof bowler_1.Bowler).length;
-        let wicketKeeperCount = players.filter(player => player instanceof wicketKeeper_1.Wicketkeeper).length;
+        let batsmanCount = players.filter(player => player.getRole() == "Batsman").length;
+        let bowlerCount = players.filter(player => player.getRole() == "Bowler").length;
+        let wicketKeeperCount = players.filter(player => player.getRole() == "Wicketkeeper").length;
         if (batsmanCount != Team.allowedBatsman) {
             throw new Error("Batsman Exceeded");
         }
@@ -106,15 +103,11 @@ class Team {
         })[0];
     }
     getBowler() {
-        let bowler = this.players.filter(player => {
-            if (player instanceof bowler_1.Bowler && !player.getIsBowl()) {
+        return this.players.filter(player => {
+            if (player.getRole() == "Bowler" && player.getOver() == 0) {
                 return player;
             }
         })[0];
-        if (bowler instanceof bowler_1.Bowler) {
-            return bowler;
-        }
-        return null;
     }
     addWickets() {
         this.wickets += 1;

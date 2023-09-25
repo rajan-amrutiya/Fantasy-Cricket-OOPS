@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Game = void 0;
-const player_1 = require("./player");
+const shot_1 = require("./shot");
 class Game {
     battingTeam;
     bowlingTeam;
     currentBatsman;
     currentBowler;
+    overs = 0;
     constructor(battingTeam, bowlingTeam) {
         this.battingTeam = battingTeam;
         this.bowlingTeam = bowlingTeam;
@@ -14,20 +15,28 @@ class Game {
         this.changeBowler();
     }
     hit() {
+        if (this.battingTeam.getWickets() == 10) {
+            return;
+        }
         this.currentBatsman.addBalls();
         this.bowlingTeam.addBalls();
         this.updateOver();
-        let shot = player_1.Player.shots();
+        let shot = shot_1.Shot.shots();
         this.addBowlingData(shot);
         this.addBattingData(shot);
     }
     updateOver() {
         if (this.bowlingTeam.getBalls() % 6 == 0) {
             this.bowlingTeam.addOvers();
-            if (this.bowlingTeam.getOvers() == 5) {
+            if (this.bowlingTeam.getOvers() == this.overs) {
                 return;
             }
-            this.changeBowler();
+            if (this.currentBowler.getOver() == (this.overs / 5)) {
+                this.changeBowler();
+            }
+            else {
+                this.currentBowler.addOver();
+            }
         }
     }
     addBowlingData(shot) {
@@ -60,11 +69,19 @@ class Game {
         this.currentBatsman.setIsBat();
     }
     changeBowler() {
-        let bowler = this.bowlingTeam.getBowler();
-        if (bowler) {
-            this.currentBowler = bowler;
-            this.currentBowler.setIsBowl();
-        }
+        this.currentBowler = this.bowlingTeam.getBowler();
+    }
+    getCurrentBatsman() {
+        return this.currentBatsman;
+    }
+    getCurrentBowler() {
+        return this.currentBowler;
+    }
+    setOvers(over) {
+        this.overs = over;
+    }
+    getOvers() {
+        return this.overs;
     }
 }
 exports.Game = Game;

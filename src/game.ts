@@ -1,15 +1,14 @@
-import { Batsman } from "./batsman";
-import { Bowler } from "./bowler";
+import { Cricketer } from "./cricketer";
 import { Player } from "./player";
 import { Shot } from "./shot";
 import { Team } from "./team";
-import { Wicketkeeper } from "./wicketKeeper";
 
 export class Game {
     private battingTeam!: Team;
     private bowlingTeam!: Team;
-    private currentBatsman!: (Batsman | Bowler | Wicketkeeper);
-    private currentBowler!: Bowler;
+    private currentBatsman!: Cricketer;
+    private currentBowler!: Cricketer;
+    private overs : number = 0;
 
     constructor(battingTeam: Team, bowlingTeam: Team) {
         this.battingTeam = battingTeam;
@@ -19,10 +18,13 @@ export class Game {
     }
 
     hit(): void {
+        if (this.battingTeam.getWickets() == 10) {
+            return 
+        }
         this.currentBatsman.addBalls();
         this.bowlingTeam.addBalls();
         this.updateOver();
-        let shot = Player.shots();
+        let shot = Shot.shots();
         this.addBowlingData(shot);
         this.addBattingData(shot);
     }
@@ -30,10 +32,14 @@ export class Game {
     updateOver(): void {
         if (this.bowlingTeam.getBalls() % 6 == 0) {
             this.bowlingTeam.addOvers();
-            if (this.bowlingTeam.getOvers() == 5) {
+            if (this.bowlingTeam.getOvers() == this.overs) {
                 return;
             }
-            this.changeBowler();
+            if(this.currentBowler.getOver() == (this.overs / 5)){                
+                this.changeBowler();
+            }else{ 
+                this.currentBowler.addOver()
+            }
         }
     }
     addBowlingData(shot: Shot): void {
@@ -52,7 +58,7 @@ export class Game {
         }
     }
 
-    countFantsayPoints(player: Player, shot: Shot): number {
+    countFantsayPoints(player: Cricketer, shot: Shot): number {
         return player.getIsCaptain() ? shot.getPoint() * 2 : player.getIsViceCaptain() ? shot.getPoint() * 1.5 : shot.getPoint();
     }
 
@@ -70,11 +76,20 @@ export class Game {
     }
 
     changeBowler(): void {
-        let bowler = this.bowlingTeam.getBowler();
-        if(bowler){
-            this.currentBowler = bowler
+        this.currentBowler = this.bowlingTeam.getBowler();
+    }
 
-            this.currentBowler.setIsBowl();
-        }
+    getCurrentBatsman(): Player {
+        return this.currentBatsman;
+    }
+
+    getCurrentBowler(): Player {
+        return this.currentBowler;
+    }
+    setOvers(over : number){
+        this.overs = over
+    }
+    getOvers(): number{
+        return this.overs
     }
 }
